@@ -1,0 +1,99 @@
+{
+  "name": "Lead agent",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": false,
+        "httpMethod": "POST",
+        "path": "lead-agent",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "contentTypeNotice": "",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "id": "d0b529c8-8d09-438d-a70f-5d2aac271cc9",
+      "name": "Webhook",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "fPkGUQWKqVMiFMON",
+          "name": "Header Auth account"
+        }
+      },
+      "webhookId": "b230d155-8507-4758-8bc9-e8d76f692548"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fields = $json.body.data.fields;\n\nconst getField = (label) => {\n  const f = fields.find(f => (f.label || '').trim().toLowerCase() === label.toLowerCase());\n  return f ? f.value : null;\n};\n\nreturn [{\n  json: {\n    namn: getField('Namn'),\n    epost: getField('E-post'),\n    telefon: getField('Telefon'),\n    meddelande: getField('Meddelande'),\n    objekt: getField('objekt')\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "b1e1a1a1-1111-4444-8888-aaaaaaaaaaaa",
+      "name": "Extract lead fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Du är en erfaren assistent på en mäklarbyrå. Din uppgift är att kategorisera inkommande leads utifrån meddelandet i deras intresseanmälan.\n\nBedöm följande utifrån meddelandet (och objektet om relevant):\n- temperatur: \"varmt\" om personen verkar köpredo, visar tydligt intresse eller ställer konkreta frågor. \"kallt\" om meddelandet är kort, vagt, eller inte tyder på akut intresse.\n- prioritet: \"hög\" eller \"låg\" utifrån hur brådskande och köpredo leadet verkar.\n- motivering: en kort mening (max 20 ord) som förklarar kategoriseringen.\n\nOm meddelandet saknas eller är tomt: sätt temperatur till \"kallt\" och prioritet till \"låg\", med motiveringen att inget meddelande lämnats.\n\nSvara ENDAST med giltig JSON i exakt detta format, utan markdown-formatering eller extra text:\n{\"temperatur\": \"varmt eller kallt\", \"prioritet\": \"hög eller låg\", \"motivering\": \"...\"}"
+            },
+            {
+              "content": "=Meddelande från leadet: {{ $json.meddelande }}\nObjekt: {{ $json.objekt }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [440, 0],
+      "id": "c2e2b2b2-2222-5555-9999-bbbbbbbbbbbb",
+      "name": "Categorize lead",
+      "credentials": {
+        "openAiApi": {
+          "id": "lBbz6qPfrtWoFyLz",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Extract lead fields').item.json;\n\nlet category;\ntry {\n  category = JSON.parse($json.output[0].content[0].text);\n} catch (e) {\n  category = { temperatur: 'kallt', prioritet: 'låg', motivering: 'Kunde inte tolka AI-svaret.' };\n}\n\nreturn [{\n  json: {\n    namn: lead.namn,\n    'e-post': lead.epost,\n    telefon: lead.telefon,\n    objekt: lead.objekt,\n    temperatur: category.temperatur,\n    prioritet: category.prioritet,\n    motivering: category.motivering\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0],
+      "id": "d3e3c3c3-3333-6666-aaaa-cccccccccccc",
+      "name": "Format output"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Extract lead fields", "type": "main", "index": 0 }]]
+    },
+    "Extract lead fields": {
+      "main": [[{ "node": "Categorize lead", "type": "main", "index": 0 }]]
+    },
+    "Categorize lead": {
+      "main": [[{ "node": "Format output", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}

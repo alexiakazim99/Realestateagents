@@ -1,0 +1,164 @@
+{
+  "name": "Text Content Generator",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Objektbeskrivning ",
+        "formDescription": "Fyll i objektets uppgifter så genereras en färdig beskrivning.",
+        "formFields": {
+          "values": [
+            { "fieldLabel": "adress", "requiredField": true },
+            {
+              "fieldLabel": "bostadstyp",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "lägenhet " },
+                  { "option": "villa" },
+                  { "option": "fritidshus" },
+                  { "option": "Radhus" }
+                ]
+              },
+              "requiredField": true
+            },
+            { "fieldLabel": "rum", "fieldType": "number", "requiredField": true },
+            { "fieldLabel": "boarea", "fieldType": "number", "requiredField": true },
+            { "fieldLabel": "pris", "fieldType": "number", "requiredField": true },
+            {
+              "fieldLabel": "valuta",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "SEK" },
+                  { "option": "EUR" },
+                  { "option": "USD" }
+                ]
+              },
+              "requiredField": true
+            },
+            { "fieldLabel": "vaning" },
+            { "fieldLabel": "avgift", "fieldType": "number" },
+            { "fieldLabel": "byggar", "fieldType": "number" },
+            { "fieldLabel": "detaljer", "fieldType": "textarea" },
+            {
+              "fieldLabel": "ton",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "Modern" },
+                  { "option": "Klassisk" },
+                  { "option": "Lyxig" },
+                  { "option": "Saklig" }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "sprak",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "Svenska" },
+                  { "option": "Engelska" },
+                  { "option": "Spanska" }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "plattform",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "sociala medier" },
+                  { "option": "webb" },
+                  { "option": "prospekt" },
+                  { "option": "Alla" }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "emoji",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "ja" },
+                  { "option": "nej" }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [16, 64],
+      "id": "c80dcba3-5b33-4c0a-8568-62cda4c60f91",
+      "name": "On form submission1",
+      "webhookId": "5029572d-a0a2-4ec8-b352-d5741930949c"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Du är en erfaren mäklare som skriver säljande objektbeskrivningar.\nDin uppgift är att skriva objektbeskrivningar utifrån objektdatan du får.\nDu följer alltid reglerna nedan utan undantag.\n\nFORMAT:\nMäklaren har valt en plattform. Skriv endast den variant som matchar valet.\nOm valet är \"Alla\", skriv alla tre, tydligt märkta med rubrik.\n\n=== SOCIALA MEDIER ===\nKort och fängande, upp till ca 50 ord. Avsluta med en uppmaning att höra av sig.\nOm Emoji = Ja: använd några få passande emojis (max 3), aldrig i övermått.\nOm Emoji = Nej: använd inga emojis alls.\n\n=== WEBB ===\nCa 200 ord. Börja med en kort säljande rubrik på egen rad. Avsluta med en\nuppmaning att boka visning.\n\n=== PROSPEKT ===\nUtförlig, upp till ca 350 ord, hellre kortare än utfylld med tomma fraser.\nBörja med en kort säljande rubrik på egen rad. Avsluta med en uppmaning att\nboka visning.\n\nREGLER:\n- Hitta ALDRIG på fakta. Använd endast informationen i objektdatan. Skriv inget\n  om föreningens ekonomi, närområdet, parker, kommunikationer, förvaring eller\n  rum som inte uttryckligen nämns.\n- Om ett fält är tomt, nämn det inte alls.\n- Nämn inte priset i texten.\n- Beskriv aldrig avgiften som hög eller låg. Nämn den bara om det behövs, utan värdeomdöme.\n- Nämn bara väderstreck och ljusförhållanden som uttryckligen angetts i datan.\n- Varje mening ska bära konkret fakta från objektdatan. Inga säljfraser utan grund.\n- Väv in fakta naturligt i löpande text. Rabbla dem aldrig som en lista.\n- Variera språket. Upprepa inte samma adjektiv, och inled inte flera meningar\n  på samma sätt.\n- Skriv fullständiga, korrekta meningar. Läs igenom och se till att varje\n  mening går ihop grammatiskt.\n- Använd aldrig tankstreck eller långt streck. Skriv med punkt eller komma.\n- Skriv ingen inledande kommentar. Ge bara texten.\n- Anpassa längden efter tillgänglig data. Ordantalen ovan är tak, inte mål.\n  Har objektet lite information, skriv kortare. En kort sann text är alltid\n  bättre än en lång utfylld."
+            },
+            {
+              "content": "=OBJEKTDATA:\nAdress: {{ $json.adress }}\nBostadstyp: {{ $json.bostadstyp }}\nAntal rum: {{ $json.rum }}\nBoarea: {{ $json.boarea }} kvm\nPris: {{ $json.pris }} {{ $json.valuta }}\nVåning: {{ $json.vaning }}\nAvgift: {{ $json.avgift }} kr/mån\nByggår: {{ $json.byggar }}\nÖvriga detaljer: {{ $json.detaljer }}\n\nINSTRUKTIONER:\nSkriv på: {{ $json.sprak }}\nTon: {{ $json.ton }}\nPlattform: {{ $json.plattform }}\nEmoji: {{ $json.emoji }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [240, 64],
+      "id": "4344c69b-6221-4ad2-927d-2b734d625ac0",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "lBbz6qPfrtWoFyLz",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [608, 64],
+      "id": "97121f42-f6ba-4429-9f27-16711f20ee1c",
+      "name": "Markdown"
+    }
+  ],
+  "connections": {
+    "On form submission1": {
+      "main": [[{ "node": "Message a model", "type": "main", "index": 0 }]]
+    },
+    "Message a model": {
+      "main": [[{ "node": "Markdown", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "pinData": {}
+}

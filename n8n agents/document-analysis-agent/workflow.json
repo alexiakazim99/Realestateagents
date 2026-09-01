@@ -1,0 +1,398 @@
+{
+  "name": "Document summary Agent",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "ladda upp dokument ",
+        "formFields": {
+          "values": [
+            { "fieldLabel": "nyckelord" },
+            { "fieldLabel": "dokument", "fieldType": "file" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [-544, 192],
+      "id": "6b6a7842-18e8-4f09-bc88-878640acdf78",
+      "name": "On form submission",
+      "webhookId": "c5e23053-9c27-488e-bee3-c569d65ddf18"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "rightValue": "application/pdf",
+                    "operator": { "type": "string", "operation": "equals" },
+                    "id": "d20e9ee2-716b-41f5-9624-600b1eddc3a9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "conditions": [
+                  {
+                    "id": "e7363d96-babd-457b-b619-4e26326bf0f3",
+                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "rightValue": "text/plain",
+                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "conditions": [
+                  {
+                    "id": "ce1f28ca-7fc5-4286-9cab-7be60da540b4",
+                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "rightValue": "text/csv",
+                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "conditions": [
+                  {
+                    "id": "60df2aab-d00f-4d4b-a8f6-a815cc3bf65a",
+                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "rightValue": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [-128, 144],
+      "id": "0199e24e-b73f-4406-a16a-5c78257cec3f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "modelId": { "__rl": true, "value": "gpt-4.1", "mode": "list", "cachedResultName": "GPT-4.1" },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Du är en professionell assistent som hjälper fastighetsmäklare att analysera och\nsammanfatta dokument (t.ex. kontrakt, besiktningsprotokoll, årsredovisningar).\nDu följer alltid strukturen och reglerna nedan utan undantag.\n\nSPRÅK:\nSvara på samma språk som dokumentet är skrivet på. Om dokumentet är på svenska,\nsvara på svenska. Om det är på engelska, svara på engelska, och så vidare.\n\nIdentifiera först vilken typ av dokument detta är och anpassa analysen därefter.\nÄr det ett avtal eller kontrakt, granska även villkoren, inte bara faktauppgifterna.\n\nSTRUKTURERA DITT SVAR SÅ HÄR:\n\n1. SAMMANFATTNING\nKort, tydlig sammanfattning av dokumentet i löpande text (2-4 meningar) - vad är\ndetta för dokument och vad handlar det om?\n\n2. RISKNIVÅ\nSätt en övergripande flagga baserat på dokumentets innehåll:\n🟢 GRÖN – inga eller obetydliga anmärkningar\n🟡 GUL – mindre anmärkningar som bör noteras\n🔴 RÖD – allvarliga problem som kräver åtgärd före affär\nMotivera kort varför du valt nivån. Det allvarligaste fyndet styr nivån.\n\n3. VARNINGAR\nLista konkreta varningar/anmärkningar du hittat (t.ex. fukt, skulder, oklara\nklausuler, renoveringsbehov, kort tid kvar på avtal). Skriv för varje varning\nen kort mening om varför det är ett problem, och ange var i dokumentet den\nkommer ifrån (paragraf, avsnitt eller ett kort citat).\nLista alla anmärkningar du hittar, sorterade med allvarligast först.\nOm inga anmärkningar finns, skriv \"Inga anmärkningar funna\".\n\n4. NYCKELDATA\nDra ut viktiga siffror och fakta i punktform (t.ex. pris, avgift, yta, byggår,\nviktiga datum, parter). Endast det som faktiskt står i dokumentet.\n\n5. ÅTGÄRDSFÖRSLAG\nFöreslå praktiska nästa steg för mäklaren vid varje varning (t.ex.\n\"Fuktindikation → rekommendera fuktbesiktning innan affär\", \"Oklar klausul →\nlåt en jurist granska punkten\").\n\nVIKTIGT: Ge ALDRIG specifika juridiska råd eller hänvisa till specifika lagar/\nparagrafer i lagstiftningen, eftersom lagar skiljer sig mellan länder. Du får\npåpeka att ett avtalsvillkor är ensidigt eller riskabelt, men hänvisa alltid\ntill rätt expert (jurist, besiktningsman, revisor) för bedömningen.\n\nREGLER:\n- Använd endast information som faktiskt står i dokumentet. Hitta aldrig på\n  fakta, siffror eller detaljer.\n- Om något viktigt saknas eller är oklart, notera det istället för att gissa.\n- Var saklig och objektiv – överdriv inte risker, men förringa dem inte heller.\n- Om dokumentet är tomt eller oläsbart, meddela detta tydligt istället för att gissa."
+            },
+            {
+              "content": "=NYCKELORD FRÅN MÄKLAREN (om angivet):\n{{ $('On form submission').item.json.nyckelord }}\nOm nyckelord angetts ovan, lägg extra vikt vid dessa i din analys och lyft fram\nallt som rör dem. Om raden är tom, hoppa över detta helt.\n\nDOKUMENTETS INNEHÅLL:\n{{ $json.text }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [656, -256],
+      "id": "bfab350e-0d39-4572-922f-a11aafd1617d",
+      "name": "textanalysis(PDF/TXT)",
+      "executeOnce": true,
+      "credentials": { "openAiApi": { "id": "lBbz6qPfrtWoFyLz", "name": "OpenAI account" } }
+    },
+    {
+      "parameters": {
+        "modelId": { "__rl": true, "value": "gpt-4", "mode": "list", "cachedResultName": "GPT-4" },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Du är en professionell assistent som hjälper fastighetsmäklare att analysera\ntabelldata och siffror (t.ex. ekonomiska underlag, driftskostnader, budgetar,\nprislistor). Du följer alltid strukturen och reglerna nedan utan undantag.\n\nSPRÅK:\nSvara på samma språk som datan/kolumnrubrikerna är skrivna på. Om datan är på\nsvenska, svara på svenska, och så vidare.\n\nBeskriv först vad tabellen innehåller: vilka kolumner som finns och hur många rader.\n\nSTRUKTURERA DITT SVAR SÅ HÄR:\n\n1. SAMMANFATTNING\nKort beskrivning av vad datan visar (2-4 meningar) - vilken typ av data är detta?\n\n2. RISKNIVÅ\nSätt en övergripande flagga baserat på siffrorna:\n🟢 GRÖN – ekonomin ser sund ut, inga varningssignaler\n🟡 GUL – vissa siffror bör noteras\n🔴 RÖD – tydliga ekonomiska varningssignaler\nMotivera kort varför du valt nivån.\nOm datan inte innehåller något att bedöma (t.ex. en ren lista), skriv\n\"Ej tillämpligt\".\n\n3. ATT NOTERA\nLista poster eller värden som sticker ut (t.ex. ovanligt höga kostnader,\nnegativa värden, stora avvikelser mellan kolumner). Peka ut vilken post det\ngäller. Om inget sticker ut, skriv \"Inget avvikande\".\n\n4. ÅTGÄRDSFÖRSLAG\nFöreslå praktiska nästa steg baserat på datan (t.ex. \"Hög värmekostnad →\njämför med liknande fastigheter, undersök energieffektivisering\").\n\nVIKTIGT: Ge ALDRIG specifika juridiska eller skatterättsliga råd. Vid\nekonomiska/juridiska frågor, hänvisa alltid till rätt expert (revisor,\nekonom, jurist).\n\nREGLER:\n- Använd endast siffror som faktiskt finns i datan. Hitta aldrig på värden.\n- Beskriv avvikelser och storleksförhållanden, men räkna inte ut egna summor\n  eller totaler. Om du hänvisar till ett värde, använd det som står i datan.\n- Om datan är tom eller oläsbar, meddela detta tydligt istället för att gissa.\n- Var saklig och objektiv – överdriv inte, men förringa inte heller."
+            },
+            {
+              "content": "=NYCKELORD FRÅN MÄKLAREN (om angivet):\n{{ $('On form submission').item.json.nyckelord }}\nOm nyckelord angetts ovan, lägg extra vikt vid dessa i din analys.\n\nDATA FRÅN FILEN:\n{{ JSON.stringify($input.all().map(i => i.json)) }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [848, 480],
+      "id": "142489d3-3eb9-4d72-b6d5-151bdc5f93dd",
+      "name": "Dataanalysis(CSV/XLSX)",
+      "executeOnce": true,
+      "credentials": { "openAiApi": { "id": "lBbz6qPfrtWoFyLz", "name": "OpenAI account" } }
+    },
+    {
+      "parameters": { "mode": "markdownToHtml", "markdown": "={{ $json.output[0].content[0].text }}", "options": {} },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [1184, -256],
+      "id": "6c81728c-b5b5-4e3d-884d-0e211ac33389",
+      "name": "Markdown"
+    },
+    {
+      "parameters": { "mode": "markdownToHtml", "markdown": "={{ $json.output[0].content[0].text }}", "options": {} },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [1216, 480],
+      "id": "4cab63e1-1cb3-4620-bce8-d0e5e3d0d11a",
+      "name": "Markdown1"
+    },
+    {
+      "parameters": { "numberInputs": 4 },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [800, 128],
+      "id": "fa4c1f07-4a16-4cf8-afe9-7121c20bea8a",
+      "name": "Merge"
+    },
+    {
+      "parameters": { "operation": "pdf", "binaryPropertyName": "dokument", "options": {} },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [96, -240],
+      "id": "a7a6ade9-8328-4997-aa48-38017416b5c0",
+      "name": "PDF-file"
+    },
+    {
+      "parameters": { "operation": "text", "binaryPropertyName": "dokument", "destinationKey": "text", "options": {} },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [96, 0],
+      "id": "ea4e1d3c-944f-4670-847a-0664f69fe15e",
+      "name": "TEXT-file"
+    },
+    {
+      "parameters": { "binaryPropertyName": "dokument", "options": {} },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [96, 192],
+      "id": "634dcd35-6918-44ba-b0b8-3d87d828204f",
+      "name": "CSV-file"
+    },
+    {
+      "parameters": { "operation": "xlsx", "binaryPropertyName": "dokument", "options": {} },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [320, 528],
+      "id": "4f56c040-285c-4999-8f0c-4f104f646b8c",
+      "name": "XLSX-file"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95165c2e-5aae-4d25-bca5-7463de6a27bf",
+              "name": "felmeddelande ",
+              "value": "Filformatet stöds inte. Ladda upp en fil i något av följande format: PDF, TXT, CSV eller XLSX.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [0, 448],
+      "id": "d93686a9-0512-45b0-a53d-e5da9be03cde",
+      "name": "Fel filtyp"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a15cd9b4-c239-41f6-a81f-4844c9f62c38",
+              "name": "Felmeddelande ",
+              "value": "Dokumentet kunde inte läsas. Kontrollera att filen innehåller läsbar data och försök igen.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [1120, 160],
+      "id": "38df2c7e-dce6-413a-9f1a-61067be0a3cb",
+      "name": "Tomt dokument "
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+          "conditions": [
+            {
+              "id": "a817d7d8-3e4e-404d-a4f0-5a7cbb265fe4",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [320, 0],
+      "id": "521d1395-8393-42e8-96d4-127e7279b987",
+      "name": "If statment "
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3 },
+          "conditions": [
+            {
+              "id": "6f2fd28b-0a7a-430b-b514-2d37af4d0ce9",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [320, 192],
+      "id": "934df8dc-5b9f-4ee6-b95b-5cdc4c87b612",
+      "name": "If statment"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+          "conditions": [
+            {
+              "id": "eb9845f5-7cfc-4c12-86ca-3de1ec200d83",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [320, -240],
+      "id": "375de899-ee82-44b9-a79d-afd77f2c4896",
+      "name": "If statment1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3 },
+          "conditions": [
+            {
+              "id": "0156ebce-bbac-4209-86e5-e4795be0006e",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [544, 528],
+      "id": "ba92cfdc-ac21-4368-9cea-b51b4c7b6f63",
+      "name": "If statment2"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [[{ "node": "Switch", "type": "main", "index": 0 }]]
+    },
+    "Switch": {
+      "main": [
+        [{ "node": "PDF-file", "type": "main", "index": 0 }],
+        [{ "node": "TEXT-file", "type": "main", "index": 0 }],
+        [{ "node": "CSV-file", "type": "main", "index": 0 }],
+        [{ "node": "XLSX-file", "type": "main", "index": 0 }],
+        [{ "node": "Fel filtyp", "type": "main", "index": 0 }]
+      ]
+    },
+    "textanalysis(PDF/TXT)": {
+      "main": [[{ "node": "Markdown", "type": "main", "index": 0 }]]
+    },
+    "Dataanalysis(CSV/XLSX)": {
+      "main": [[{ "node": "Markdown1", "type": "main", "index": 0 }]]
+    },
+    "Merge": {
+      "main": [[{ "node": "Tomt dokument ", "type": "main", "index": 0 }]]
+    },
+    "PDF-file": {
+      "main": [[{ "node": "If statment1", "type": "main", "index": 0 }]]
+    },
+    "TEXT-file": {
+      "main": [[{ "node": "If statment ", "type": "main", "index": 0 }]]
+    },
+    "CSV-file": {
+      "main": [[{ "node": "If statment", "type": "main", "index": 0 }]]
+    },
+    "XLSX-file": {
+      "main": [[{ "node": "If statment2", "type": "main", "index": 0 }]]
+    },
+    "Fel filtyp": {
+      "main": [[]]
+    },
+    "If statment ": {
+      "main": [
+        [{ "node": "textanalysis(PDF/TXT)", "type": "main", "index": 0 }],
+        [{ "node": "Merge", "type": "main", "index": 1 }]
+      ]
+    },
+    "If statment": {
+      "main": [
+        [{ "node": "Dataanalysis(CSV/XLSX)", "type": "main", "index": 0 }],
+        [{ "node": "Merge", "type": "main", "index": 2 }]
+      ]
+    },
+    "If statment1": {
+      "main": [
+        [{ "node": "textanalysis(PDF/TXT)", "type": "main", "index": 0 }],
+        [{ "node": "Merge", "type": "main", "index": 0 }]
+      ]
+    },
+    "If statment2": {
+      "main": [
+        [{ "node": "Dataanalysis(CSV/XLSX)", "type": "main", "index": 0 }],
+        [{ "node": "Merge", "type": "main", "index": 3 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "pinData": {}
+}
