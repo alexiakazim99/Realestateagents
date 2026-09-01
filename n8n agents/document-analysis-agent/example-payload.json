@@ -1,0 +1,31 @@
+{
+  "_note": "This agent is triggered by an n8n Form Trigger with a file upload field ('dokument'). The two sections below are both from real test executions run on 2026-09-01 (n8n execution ids 271/272) — they were not fabricated. A genuine successful PDF/TXT analysis run could not be captured this way: the API-based test tool used to generate this documentation always uploads files as 'application/octet-stream' regardless of the real file extension, which does not match any of the workflow's exact MIME-type checks (application/pdf, text/plain, text/csv, .xlsx). A real browser file upload sets the correct MIME type and does not hit this issue — see 'known_gaps' in technical-summary.md.",
+
+  "trigger_output_shape": {
+    "description": "Real shape of $json right after the 'On form submission' node, from execution 271/272.",
+    "example": {
+      "nyckelord": "fuktskada, avgift",
+      "dokument": [
+        {
+          "filename": "kopekontrakt-exempel.txt",
+          "mimetype": "application/octet-stream",
+          "size": 689
+        }
+      ],
+      "submittedAt": "2026-09-01T14:01:09.668-04:00",
+      "formMode": "production"
+    }
+  },
+
+  "observed_unsupported_type_branch": {
+    "description": "Real output when the Switch node's MIME-type conditions don't match (genuinely observed, not simulated) — routes to 'Fel filtyp'.",
+    "output": {
+      "felmeddelande ": "Filformatet stöds inte. Ladda upp en fil i något av följande format: PDF, TXT, CSV eller XLSX."
+    }
+  },
+
+  "illustrative_successful_analysis_output_structure": {
+    "description": "NOT captured from a real execution (see note above) — this illustrates the structure the 'textanalysis(PDF/TXT)' system prompt defines, for documentation purposes only. Do not treat the analysis content itself as real.",
+    "structure": "1. SAMMANFATTNING (2-4 sentences)\n2. RISKNIVÅ (🟢/🟡/🔴 + short justification)\n3. VARNINGAR (bulleted list, each with a reason and a source reference/quote, worst first; or 'Inga anmärkningar funna')\n4. NYCKELDATA (bulleted key facts actually present in the document)\n5. ÅTGÄRDSFÖRSLAG (a concrete next step per warning, e.g. referring to a jurist/besiktningsman/revisor)"
+  }
+}

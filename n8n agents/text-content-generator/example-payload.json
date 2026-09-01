@@ -1,0 +1,23 @@
+{
+  "_note": "This agent is triggered by an n8n Form Trigger (the broker fills in a built-in n8n form directly — there is no external webhook/JSON API involved). Captured from a real test submission run on 2026-09-01 (n8n execution id 270). Shown here is the shape of $json right after the 'On form submission1' node, i.e. the actual input the rest of the workflow consumes.",
+  "input": {
+    "adress": "Kungsgatan 14, Stockholm",
+    "bostadstyp": "lägenhet ",
+    "rum": 3,
+    "boarea": 72,
+    "pris": 3950000,
+    "valuta": "SEK",
+    "vaning": "4 av 6",
+    "avgift": 3200,
+    "byggar": 1998,
+    "detaljer": "Balkong i söderläge, öppen planlösning kök/vardagsrum, nyrenoverat badrum 2023.",
+    "ton": "Modern",
+    "sprak": "Svenska",
+    "plattform": "webb",
+    "emoji": "nej",
+    "submittedAt": "2026-09-01T14:00:03.805-04:00",
+    "formMode": "production"
+  },
+  "output_text": "Ljus och modern trea med balkong i söderläge\n\nVälkommen till Kungsgatan 14, en stilren lägenhet om 72 kvm på fjärde våningen i ett modernt hus från 1998. Här möts du av en öppen planlösning mellan kök och vardagsrum som ger fantastisk rymd och bjuder in till umgänge. Från vardagsrummet har du utgång till en generös balkong i söderläge, perfekt för långa stunder i solen. Lägenheten erbjuder tre rum med luftig känsla och gott om plats för både vardag och fest. Badrummet renoverades 2023 och har en modern standard. Bostadens avgift är 3200 kr/mån. \n\nDet här är ett boende för dig som söker något modernt och inflyttningsklart – boka din visning redan idag!",
+  "output_note": "Raw text is produced by the 'Message a model' node (GPT-4.1) and then converted to HTML by the 'Markdown' node before being returned to the form."
+}

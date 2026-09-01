@@ -1,0 +1,61 @@
+{
+  "_note": "Captured from a real Tally form submission on 2026-08-26 via the ngrok tunnel to the Lead Agent webhook. The x-api-key header value has been redacted — the real value lives only in n8n's 'Header Auth account' credential, never in this repo.",
+  "request": {
+    "method": "POST",
+    "url": "https://<ngrok-or-public-domain>/webhook/lead-agent",
+    "headers": {
+      "content-type": "application/json",
+      "user-agent": "Tally Webhooks",
+      "x-api-key": "<REDACTED - see n8n credential 'Header Auth account'>"
+    },
+    "body": {
+      "eventId": "4db57717-2b05-42a8-9c71-0de4ba255dec",
+      "eventType": "FORM_RESPONSE",
+      "createdAt": "2026-08-26T09:31:38.888Z",
+      "data": {
+        "responseId": "VpDRB2g",
+        "submissionId": "VpDRB2g",
+        "respondentId": "pb12G1P",
+        "formId": "kdjp16",
+        "formName": "Intresseanmälan ",
+        "createdAt": "2026-08-26T09:31:38.000Z",
+        "fields": [
+          {
+            "key": "question_qKdQz9",
+            "label": "Namn",
+            "type": "INPUT_TEXT",
+            "value": "dkaa"
+          },
+          {
+            "key": "question_VYeogE",
+            "label": "E-post",
+            "type": "INPUT_EMAIL",
+            "value": "alexiakazim99@gmail.com"
+          },
+          {
+            "key": "question_PYx8Kd",
+            "label": "Telefon",
+            "type": "INPUT_PHONE_NUMBER",
+            "value": null
+          },
+          {
+            "key": "question_EDR89q_a98c399a-9dd8-4dbe-8c2d-900548039cff",
+            "label": "objekt",
+            "type": "HIDDEN_FIELDS",
+            "value": null
+          },
+          {
+            "key": "question_rL4275",
+            "label": "Meddelande",
+            "type": "TEXTAREA",
+            "value": null
+          }
+        ]
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": { "message": "Workflow was started" }
+  }
+}

@@ -1,0 +1,17 @@
+# Secrets & credentials — never commit real values
+.env
+*.env
+!.env.example
+*.pem
+*.key
+*_credentials.json
+credentials/
+secrets/
+
+# n8n local runtime state (if this ever runs n8n from within the repo)
+.n8n/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp

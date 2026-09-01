@@ -1,0 +1,25 @@
+{
+  "_description": "Empty message (telefon and meddelande both null) → expected temperatur=kallt, prioritet=låg, with the 'no message provided' fallback motivering defined in the system prompt. Run 2026-08-26.",
+  "input": {
+    "eventId": "test-replay-002",
+    "eventType": "FORM_RESPONSE",
+    "data": {
+      "fields": [
+        { "key": "q1", "label": "Namn", "value": "Erik Svensson" },
+        { "key": "q2", "label": "E-post", "value": "erik@example.com" },
+        { "key": "q3", "label": "Telefon", "value": null },
+        { "key": "q4", "label": "objekt", "value": "Vasagatan 4" },
+        { "key": "q5", "label": "Meddelande", "value": null }
+      ]
+    }
+  },
+  "output": {
+    "namn": "Erik Svensson",
+    "e-post": "erik@example.com",
+    "telefon": null,
+    "objekt": "Vasagatan 4",
+    "temperatur": "kallt",
+    "prioritet": "låg",
+    "motivering": "Inget meddelande lämnats."
+  }
+}

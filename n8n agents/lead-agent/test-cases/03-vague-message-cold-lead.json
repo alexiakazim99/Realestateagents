@@ -1,0 +1,25 @@
+{
+  "_description": "Bonus verification run (2026-09-01, n8n execution id 268): a real, present message that is nonetheless low-urgency/vague → expected temperatur=kallt, prioritet=låg with an AI-written (not fallback) motivering. Confirms the model applies judgment beyond just 'message present vs. absent'.",
+  "input": {
+    "eventId": "mcp-test-001",
+    "eventType": "FORM_RESPONSE",
+    "data": {
+      "fields": [
+        { "key": "q1", "label": "Namn", "value": "Johanna Berg" },
+        { "key": "q2", "label": "E-post", "value": "johanna@example.com" },
+        { "key": "q3", "label": "Telefon", "value": "0709998877" },
+        { "key": "q4", "label": "objekt", "value": "Kungsgatan 22" },
+        { "key": "q5", "label": "Meddelande", "value": "Hej, jag undrar bara om lägenheten fortfarande finns kvar, inget bråttom." }
+      ]
+    }
+  },
+  "output": {
+    "namn": "Johanna Berg",
+    "e-post": "johanna@example.com",
+    "telefon": "0709998877",
+    "objekt": "Kungsgatan 22",
+    "temperatur": "kallt",
+    "prioritet": "låg",
+    "motivering": "Vagt intresse och ingen brådska uttrycks."
+  }
+}

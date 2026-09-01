@@ -1,0 +1,35 @@
+{
+  "_description": "Full, urgent message → expected temperatur=varmt, prioritet=hög. Run 2026-08-26 against the webhook directly (bypassing Tally) with a Tally-shaped payload.",
+  "input": {
+    "eventId": "test-replay-001",
+    "eventType": "FORM_RESPONSE",
+    "createdAt": "2026-08-26T09:31:38.888Z",
+    "data": {
+      "responseId": "testResp",
+      "submissionId": "testResp",
+      "formId": "kdjp16",
+      "formName": "Intresseanmälan",
+      "fields": [
+        { "key": "question_qKdQz9", "label": "Namn", "type": "INPUT_TEXT", "value": "Anna Andersson" },
+        { "key": "question_VYeogE", "label": "E-post", "type": "INPUT_EMAIL", "value": "anna@example.com" },
+        { "key": "question_PYx8Kd", "label": "Telefon", "type": "INPUT_PHONE_NUMBER", "value": "0701234567" },
+        { "key": "question_EDR89q", "label": "objekt", "type": "HIDDEN_FIELDS", "value": "Storgatan 12" },
+        {
+          "key": "question_rL4275",
+          "label": "Meddelande",
+          "type": "TEXTAREA",
+          "value": "Hej! Jag är väldigt intresserad av lägenheten på Storgatan 12 och vill gärna boka en visning så snart som möjligt. Kan ni ringa mig imorgon?"
+        }
+      ]
+    }
+  },
+  "output": {
+    "namn": "Anna Andersson",
+    "e-post": "anna@example.com",
+    "telefon": "0701234567",
+    "objekt": "Storgatan 12",
+    "temperatur": "varmt",
+    "prioritet": "hög",
+    "motivering": "Leadet vill boka visning omgående och ber om kontakt, vilket tyder på köpredo och brådska."
+  }
+}
