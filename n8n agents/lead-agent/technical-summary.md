@@ -109,6 +109,17 @@ Note: the live headers are `Mäklarmejl` (not "Mäklarens mejl") and `Byrå ` (w
 - **Matching is normalized, writes are not.** Comparison trims and lowercases both values and column names, so `"Frejgatan 6 "` matches `"frejgatan 6"`. But Chain B writes the objekt back *verbatim*: an earlier version trimmed it first, `appendOrUpdate` then found no matching row, and appended a duplicate.
 - **The Gmail node cannot change the From address** — mail is always sent from the connected account. `emailType` must be set to `text`; the default is `html`, which collapses newlines into one paragraph. `appendAttribution: false` removes n8n's "sent automatically with n8n" footer.
 - **The Google Sheets node's `columns` resourceMapper is fragile when built via the API.** Declaring a column in `schema` that doesn't exist in the sheet is rejected outright ("Column names were updated after the node's setup"). To *add* a new column, leave it out of `schema` and let `options.handlingExtraData: "insertInNewColumn"` create it. For writes generally, `mappingMode: "autoMapInputData"` with a preceding Code node that shapes the keys is the reliable pattern — `defineBelow` silently fell back to auto-mapping and once wrote junk into the header row.
+- **Phone numbers need `options.cellFormat: "RAW"` on the Leads append.** The default (`USER_ENTERED`) makes Sheets interpret each value as if it had been typed by hand, so `0709876543` was stored as the number `709876543` and lost its leading zero. `RAW` writes values verbatim. The Telefon column is additionally set to a TEXT number format (see below) as a second line of defence. Rows written before this fix keep the broken value — it is not corrected retroactively.
+
+## Sheet presentation (one-time setup, not part of the workflow)
+
+The Leads tab's formatting was applied once by calling the Google Sheets API's `spreadsheets.batchUpdate` directly — n8n's Google Sheets node only reads and writes values, it has no formatting operations. It was done with an HTTP Request node using `authentication: predefinedCredentialType` + `nodeCredentialType: googleSheetsOAuth2Api`, so it reuses the same Google Sheets credential without any extra setup. The throwaway workflow has since been deleted; recreate it from these requests if the sheet ever needs rebuilding:
+
+- `updateSheetProperties` → `frozenRowCount: 1` (header row stays visible while scrolling)
+- `repeatCell` on row 0 → bold text, light grey background
+- `repeatCell` on all columns → `wrapStrategy: WRAP`, `verticalAlignment: TOP`
+- `updateDimensionProperties` per column → explicit pixel widths (Datum 110, Namn 180, E-post 240, Telefon 120, Objekt 180, Meddelande 340, Temperatur 120, Prioritet 110, Motivering 340, Mäklare 170, Annonslänk 240)
+- `repeatCell` on column D → `numberFormat: { type: "TEXT" }` so phone numbers keep their leading zero
 
 ## Known limitations
 

@@ -1,0 +1,48 @@
+{
+  "_description": "Objekt exists in the Objekt tab → the matching broker is found, gets the notification email, and the lead is logged with the broker filled in. Run 2026-09-07 against the live webhook. Names and addresses below are placeholders; the real run used the actual sheet contents.",
+  "_preconditions": "The Objekt tab contains a row whose Objekt column matches (after trim + lowercase) the objekt sent in the payload.",
+  "input": {
+    "eventId": "leads-log-match",
+    "eventType": "FORM_RESPONSE",
+    "data": {
+      "fields": [
+        { "key": "q1", "label": "Namn", "value": "Sara Lind" },
+        { "key": "q2", "label": "E-post", "value": "lead@example.com" },
+        { "key": "q3", "label": "Telefon", "value": "0709876543" },
+        { "key": "q4", "label": "objekt", "value": "vasagatan 12" },
+        {
+          "key": "q5",
+          "label": "Meddelande",
+          "value": "Hej! Vill boka visning den 12 december. Har lånelöfte klart."
+        }
+      ]
+    }
+  },
+  "expected": {
+    "merge_broker_lookup": {
+      "brokerFound": true,
+      "maklare": "<broker name from the sheet>",
+      "maklarEmail": "<broker email from the sheet>",
+      "byra": "<agency from the sheet>",
+      "annonslank": "<listing URL from the sheet, empty if the broker hasn't pasted one>"
+    },
+    "emails_sent": [
+      "confirmation to the lead, signed with the matched broker + agency",
+      "notification to the matched broker, including the lead's own message"
+    ],
+    "no_fallback_email": true,
+    "leads_tab_row": {
+      "Datum": "2026-09-07 16:38",
+      "Namn": "Sara Lind",
+      "E-post": "lead@example.com",
+      "Telefon": "0709876543",
+      "Objekt": "vasagatan 12",
+      "Meddelande": "Hej! Vill boka visning den 12 december. Har lånelöfte klart.",
+      "Temperatur": "varmt",
+      "Prioritet": "hög",
+      "Motivering": "Leadet vill boka visning och har lånelöfte, vilket tyder på starkt köpmotiv.",
+      "Mäklare": "<broker name from the sheet>",
+      "Annonslänk": ""
+    }
+  }
+}

@@ -212,7 +212,7 @@
         },
         "sheetName": { "__rl": true, "mode": "name", "value": "Leads" },
         "columns": { "mappingMode": "autoMapInputData", "value": {}, "schema": [] },
-        "options": { "handlingExtraData": "insertInNewColumn" }
+        "options": { "handlingExtraData": "insertInNewColumn", "cellFormat": "RAW" }
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,

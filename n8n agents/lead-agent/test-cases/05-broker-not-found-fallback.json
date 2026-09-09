@@ -1,0 +1,44 @@
+{
+  "_description": "Objekt does NOT exist in the Objekt tab → no broker is found, the admin fallback email is sent instead, and the lead is still logged with Mäklare and Annonslänk left blank. Run 2026-09-07 against the live webhook.",
+  "_preconditions": "No row in the Objekt tab matches the objekt sent in the payload.",
+  "input": {
+    "eventId": "leads-log-fallback",
+    "eventType": "FORM_RESPONSE",
+    "data": {
+      "fields": [
+        { "key": "q1", "label": "Namn", "value": "Okänd Objektperson" },
+        { "key": "q2", "label": "E-post", "value": "lead@example.com" },
+        { "key": "q3", "label": "Telefon", "value": "0700000000" },
+        { "key": "q4", "label": "objekt", "value": "Finns Inte-gatan 99" },
+        { "key": "q5", "label": "Meddelande", "value": "Hej, jag undrar lite om denna bostad." }
+      ]
+    }
+  },
+  "expected": {
+    "merge_broker_lookup": {
+      "brokerFound": false,
+      "maklare": null,
+      "maklarEmail": null,
+      "byra": null,
+      "annonslank": null
+    },
+    "emails_sent": [
+      "confirmation to the lead, signed with the neutral fallback signature",
+      "fallback notification to the admin address, flagged as unmatched"
+    ],
+    "no_broker_email": true,
+    "leads_tab_row": {
+      "Datum": "2026-09-07 16:38",
+      "Namn": "Okänd Objektperson",
+      "E-post": "lead@example.com",
+      "Telefon": "0700000000",
+      "Objekt": "Finns Inte-gatan 99",
+      "Meddelande": "Hej, jag undrar lite om denna bostad.",
+      "Temperatur": "kallt",
+      "Prioritet": "låg",
+      "Motivering": "Meddelandet är kort och visar inget tydligt köpsignal eller brådskande intresse.",
+      "Mäklare": "",
+      "Annonslänk": ""
+    }
+  }
+}
