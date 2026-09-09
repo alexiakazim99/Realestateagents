@@ -1,11 +1,9 @@
 # Document Analysis Agent — Technical Summary
 
-> **Naming note:** the workflow's actual name in n8n is **"Document summary Agent"**, not "Document Analysis Agent". Documented here under the requested folder/label for consistency with the other two agents, but the n8n instance itself still shows the older name.
-
-**n8n workflow name:** `Document summary Agent`
+**n8n workflow name:** `Document Analysis Agent`
 **Workflow ID:** `y4PQC8qh4QLQOhvM`
 **Status:** Active (production)
-**Models:** GPT-4.1 for PDF/TXT, **GPT-4** for CSV/XLSX (see "Notes" below)
+**Model:** GPT-4.1 (both analysis branches)
 
 ## Purpose
 
@@ -20,7 +18,7 @@ An n8n **Form Trigger** ("On form submission") titled "ladda upp dokument" with 
 | Order | Node | Type | What it does |
 |---|---|---|---|
 | 1 | **On form submission** | `n8n-nodes-base.formTrigger` | Entry point; collects `nyckelord` + the uploaded `dokument` file. |
-| 2 | **Switch** | `n8n-nodes-base.switch` | Routes based on the uploaded file's MIME type: `application/pdf`, `text/plain`, `text/csv`, `application/vnd...spreadsheetml.sheet` (xlsx), with a fallback branch ("extra") for anything else. |
+| 2 | **Switch** | `n8n-nodes-base.switch` | Routes on the uploaded file, matching each branch on **either** the MIME type (`application/pdf`, `text/plain`, `text/csv`, `application/vnd...spreadsheetml.sheet`) **or** the file extension (`.pdf`, `.txt`, `.csv`, `.xlsx`), with a fallback branch ("extra") for anything else. Reads the file safely (`$json.dokument?.[0]?.mimetype`) so a missing file falls through to the fallback instead of throwing. |
 | 3a | **PDF-file** | `n8n-nodes-base.extractFromFile` (pdf) | Extracts text from PDF uploads. |
 | 3b | **TEXT-file** | `n8n-nodes-base.extractFromFile` (text) | Extracts text from `.txt` uploads into `text`. |
 | 3c | **CSV-file** | `n8n-nodes-base.extractFromFile` | Parses CSV into rows/columns. |
@@ -29,7 +27,7 @@ An n8n **Form Trigger** ("On form submission") titled "ladda upp dokument" with 
 | 4 | **If statment / If statment1** | `n8n-nodes-base.if` | For the TXT and PDF branches respectively: checks `$json.text` is non-empty before proceeding to analysis; empty → routed into `Merge`. |
 | 4 | **If statment2** (XLSX) / **If statment** (CSV, reused name) | `n8n-nodes-base.if` | For CSV/XLSX branches: checks the parsed item count is non-empty; empty → routed into `Merge`. |
 | 5a | **textanalysis(PDF/TXT)** | `@n8n/n8n-nodes-langchain.openAi` (GPT-4.1, `executeOnce: true`) | Sends the extracted text + keywords to GPT-4.1 with the document-analysis system prompt (see `system-prompts.md`) — produces the summary/risk/warnings/key-data/next-steps structure. |
-| 5b | **Dataanalysis(CSV/XLSX)** | `@n8n/n8n-nodes-langchain.openAi` (**GPT-4**, `executeOnce: true`) | Sends the parsed row data (`JSON.stringify(...)`) + keywords to GPT-4 with a separate, table-data-focused system prompt (see `system-prompts.md`). |
+| 5b | **Dataanalysis(CSV/XLSX)** | `@n8n/n8n-nodes-langchain.openAi` (GPT-4.1, `executeOnce: true`) | Sends the parsed row data (`JSON.stringify(...)`) + keywords to GPT-4.1 with a separate, table-data-focused system prompt (see `prompts/document-analysis-agent.md`). |
 | 6a | **Markdown** | `n8n-nodes-base.markdown` | Converts the PDF/TXT analysis output to HTML. |
 | 6b | **Markdown1** | `n8n-nodes-base.markdown` | Converts the CSV/XLSX analysis output to HTML. |
 | 7 | **Merge** | `n8n-nodes-base.merge` (4 inputs) | Collects the "empty document" branches from all four file-type paths. |
@@ -47,11 +45,15 @@ An n8n **Form Trigger** ("On form submission") titled "ladda upp dokument" with 
 
 ## Notes / potential inconsistencies worth flagging
 
-- **Model mismatch:** every other agent/node in this system (Lead Agent, Text Content Generator) uses **GPT-4.1**, but the CSV/XLSX analysis branch here uses plain **GPT-4**. Unclear if intentional; worth confirming.
 - Two `If` nodes are both named "If statment" / "If statment " (trailing space distinguishes them) and another pair "If statment1" / "If statment2" — functionally fine since n8n keys connections by internal node ID, but easy to mix up when reading the canvas.
 - The two system prompts are structurally similar (summary → risk flag → findings → key data → next steps) but tuned differently: the PDF/TXT prompt is oriented around contract/inspection-style risk (fukt, skulder, klausuler), the CSV/XLSX prompt around financial-data anomalies (avvikande kostnader, negativa värden).
 
-## Verified edge-case behavior (tested 2026-09-01, see example-payload.json)
+## Fixed 2026-09-09
 
-- **Submitting the form with no file at all causes an unhandled 500 error**, not a graceful "unsupported format" message. The Switch node's conditions read `$json.dokument[0].mimetype` unconditionally; when `dokument` is undefined this throws before Switch can even evaluate a fallback. Worth adding an explicit "no file uploaded" guard before the Switch node if this should degrade gracefully instead.
-- **The Switch node matches MIME type by exact string equality.** A real browser upload of a `.txt`/`.pdf`/`.csv`/`.xlsx` file sets the correct MIME type and works fine, but any upload path that produces a slightly different or generic MIME type (e.g. `application/octet-stream`) silently falls into the "Fel filtyp" branch with a "format not supported" message — even though the actual file extension is supported. Not necessarily a bug, but a fragility worth being aware of if leads/brokers ever upload through anything other than a standard browser file picker.
+Three issues found while documenting this agent were fixed and verified:
+
+- **Workflow renamed** from "Document summary Agent" to "Document Analysis Agent", so the n8n name matches the agent name used everywhere else.
+- **Missing file no longer crashes.** The Switch conditions previously read `$json.dokument[0].mimetype` unconditionally, which threw an unhandled 500 error before the fallback branch could be evaluated. They now use optional chaining (`$json.dokument?.[0]?.mimetype || ''`), so anything unreadable falls through to "Fel filtyp".
+- **MIME matching is no longer the only signal.** Each branch now matches on the MIME type **or** the file extension, with `typeValidation: loose` and case-insensitive comparison. Previously a genuine `.txt` file uploaded with a generic `application/octet-stream` type was rejected as "unsupported format". Verified: the same file that used to land in "Fel filtyp" now routes to the text analysis and returns a full report.
+
+Known remaining quirk: two `If` nodes are named "If statment" and "If statment " (distinguished only by a trailing space), and another pair "If statment1"/"If statment2". Functionally fine — n8n keys connections by node ID — but easy to misread on the canvas.

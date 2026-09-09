@@ -1,5 +1,5 @@
 {
-  "name": "Document summary Agent",
+  "name": "Document Analysis Agent",
   "active": true,
   "nodes": [
     {
@@ -7,15 +7,23 @@
         "formTitle": "ladda upp dokument ",
         "formFields": {
           "values": [
-            { "fieldLabel": "nyckelord" },
-            { "fieldLabel": "dokument", "fieldType": "file" }
+            {
+              "fieldLabel": "nyckelord"
+            },
+            {
+              "fieldLabel": "dokument",
+              "fieldType": "file"
+            }
           ]
         },
         "options": {}
       },
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.6,
-      "position": [-544, 192],
+      "position": [
+        -544,
+        192
+      ],
       "id": "6b6a7842-18e8-4f09-bc88-878640acdf78",
       "name": "On form submission",
       "webhookId": "c5e23053-9c27-488e-bee3-c569d65ddf18"
@@ -26,73 +34,160 @@
           "values": [
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "id": "d20e9ee2-716b-41f5-9624-600b1eddc3a",
+                    "leftValue": "={{ $json.dokument?.[0]?.mimetype || '' }}",
                     "rightValue": "application/pdf",
-                    "operator": { "type": "string", "operation": "equals" },
-                    "id": "d20e9ee2-716b-41f5-9624-600b1eddc3a9"
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "d20e9ee2-716b-41f5-9624-600b1eddc3b",
+                    "leftValue": "={{ ($json.dokument?.[0]?.filename || '').toLowerCase() }}",
+                    "rightValue": ".pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
                   }
                 ],
-                "combinator": "and"
-              }
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
             },
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
                 "conditions": [
                   {
-                    "id": "e7363d96-babd-457b-b619-4e26326bf0f3",
-                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "id": "e7363d96-babd-457b-b619-4e26326bf0a",
+                    "leftValue": "={{ $json.dokument?.[0]?.mimetype || '' }}",
                     "rightValue": "text/plain",
-                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "e7363d96-babd-457b-b619-4e26326bf0b",
+                    "leftValue": "={{ ($json.dokument?.[0]?.filename || '').toLowerCase() }}",
+                    "rightValue": ".txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
                   }
                 ],
-                "combinator": "and"
-              }
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "TXT"
             },
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
                 "conditions": [
                   {
-                    "id": "ce1f28ca-7fc5-4286-9cab-7be60da540b4",
-                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "id": "ce1f28ca-7fc5-4286-9cab-7be60da540a",
+                    "leftValue": "={{ $json.dokument?.[0]?.mimetype || '' }}",
                     "rightValue": "text/csv",
-                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "ce1f28ca-7fc5-4286-9cab-7be60da540b",
+                    "leftValue": "={{ ($json.dokument?.[0]?.filename || '').toLowerCase() }}",
+                    "rightValue": ".csv",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
                   }
                 ],
-                "combinator": "and"
-              }
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "CSV"
             },
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
                 "conditions": [
                   {
-                    "id": "60df2aab-d00f-4d4b-a8f6-a815cc3bf65a",
-                    "leftValue": "={{ $json.dokument[0].mimetype }}",
+                    "id": "60df2aab-d00f-4d4b-a8f6-a815cc3bf6a",
+                    "leftValue": "={{ $json.dokument?.[0]?.mimetype || '' }}",
                     "rightValue": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  },
+                  {
+                    "id": "60df2aab-d00f-4d4b-a8f6-a815cc3bf6b",
+                    "leftValue": "={{ ($json.dokument?.[0]?.filename || '').toLowerCase() }}",
+                    "rightValue": ".xlsx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
                   }
                 ],
-                "combinator": "and"
-              }
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "XLSX"
             }
           ]
         },
-        "options": { "fallbackOutput": "extra" }
+        "looseTypeValidation": true,
+        "options": {
+          "fallbackOutput": "extra"
+        }
       },
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
-      "position": [-128, 144],
+      "position": [
+        -128,
+        144
+      ],
       "id": "0199e24e-b73f-4406-a16a-5c78257cec3f",
       "name": "Switch"
     },
     {
       "parameters": {
-        "modelId": { "__rl": true, "value": "gpt-4.1", "mode": "list", "cachedResultName": "GPT-4.1" },
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
         "responses": {
           "values": [
             {
@@ -109,15 +204,28 @@
       },
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.3,
-      "position": [656, -256],
+      "position": [
+        656,
+        -256
+      ],
       "id": "bfab350e-0d39-4572-922f-a11aafd1617d",
       "name": "textanalysis(PDF/TXT)",
       "executeOnce": true,
-      "credentials": { "openAiApi": { "id": "lBbz6qPfrtWoFyLz", "name": "OpenAI account" } }
+      "credentials": {
+        "openAiApi": {
+          "id": "lBbz6qPfrtWoFyLz",
+          "name": "OpenAI account"
+        }
+      }
     },
     {
       "parameters": {
-        "modelId": { "__rl": true, "value": "gpt-4", "mode": "list", "cachedResultName": "GPT-4" },
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
         "responses": {
           "values": [
             {
@@ -134,65 +242,120 @@
       },
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.3,
-      "position": [848, 480],
+      "position": [
+        848,
+        480
+      ],
       "id": "142489d3-3eb9-4d72-b6d5-151bdc5f93dd",
       "name": "Dataanalysis(CSV/XLSX)",
       "executeOnce": true,
-      "credentials": { "openAiApi": { "id": "lBbz6qPfrtWoFyLz", "name": "OpenAI account" } }
+      "credentials": {
+        "openAiApi": {
+          "id": "lBbz6qPfrtWoFyLz",
+          "name": "OpenAI account"
+        }
+      }
     },
     {
-      "parameters": { "mode": "markdownToHtml", "markdown": "={{ $json.output[0].content[0].text }}", "options": {} },
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
-      "position": [1184, -256],
+      "position": [
+        1184,
+        -256
+      ],
       "id": "6c81728c-b5b5-4e3d-884d-0e211ac33389",
       "name": "Markdown"
     },
     {
-      "parameters": { "mode": "markdownToHtml", "markdown": "={{ $json.output[0].content[0].text }}", "options": {} },
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output[0].content[0].text }}",
+        "options": {}
+      },
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
-      "position": [1216, 480],
+      "position": [
+        1216,
+        480
+      ],
       "id": "4cab63e1-1cb3-4620-bce8-d0e5e3d0d11a",
       "name": "Markdown1"
     },
     {
-      "parameters": { "numberInputs": 4 },
+      "parameters": {
+        "numberInputs": 4
+      },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
-      "position": [800, 128],
+      "position": [
+        800,
+        128
+      ],
       "id": "fa4c1f07-4a16-4cf8-afe9-7121c20bea8a",
       "name": "Merge"
     },
     {
-      "parameters": { "operation": "pdf", "binaryPropertyName": "dokument", "options": {} },
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "dokument",
+        "options": {}
+      },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
-      "position": [96, -240],
+      "position": [
+        96,
+        -240
+      ],
       "id": "a7a6ade9-8328-4997-aa48-38017416b5c0",
       "name": "PDF-file"
     },
     {
-      "parameters": { "operation": "text", "binaryPropertyName": "dokument", "destinationKey": "text", "options": {} },
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "dokument",
+        "destinationKey": "text",
+        "options": {}
+      },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
-      "position": [96, 0],
+      "position": [
+        96,
+        0
+      ],
       "id": "ea4e1d3c-944f-4670-847a-0664f69fe15e",
       "name": "TEXT-file"
     },
     {
-      "parameters": { "binaryPropertyName": "dokument", "options": {} },
+      "parameters": {
+        "binaryPropertyName": "dokument",
+        "options": {}
+      },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
-      "position": [96, 192],
+      "position": [
+        96,
+        192
+      ],
       "id": "634dcd35-6918-44ba-b0b8-3d87d828204f",
       "name": "CSV-file"
     },
     {
-      "parameters": { "operation": "xlsx", "binaryPropertyName": "dokument", "options": {} },
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "dokument",
+        "options": {}
+      },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
-      "position": [320, 528],
+      "position": [
+        320,
+        528
+      ],
       "id": "4f56c040-285c-4999-8f0c-4f104f646b8c",
       "name": "XLSX-file"
     },
@@ -212,7 +375,10 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
-      "position": [0, 448],
+      "position": [
+        0,
+        448
+      ],
       "id": "d93686a9-0512-45b0-a53d-e5da9be03cde",
       "name": "Fel filtyp"
     },
@@ -232,20 +398,32 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
-      "position": [1120, 160],
+      "position": [
+        1120,
+        160
+      ],
       "id": "38df2c7e-dce6-413a-9f1a-61067be0a3cb",
       "name": "Tomt dokument "
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
           "conditions": [
             {
               "id": "a817d7d8-3e4e-404d-a4f0-5a7cbb265fe4",
               "leftValue": "={{ $json.text }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -254,20 +432,32 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [320, 0],
+      "position": [
+        320,
+        0
+      ],
       "id": "521d1395-8393-42e8-96d4-127e7279b987",
       "name": "If statment "
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3 },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
           "conditions": [
             {
               "id": "6f2fd28b-0a7a-430b-b514-2d37af4d0ce9",
               "leftValue": "={{ $input.all().length }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -277,20 +467,32 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [320, 192],
+      "position": [
+        320,
+        192
+      ],
       "id": "934df8dc-5b9f-4ee6-b95b-5cdc4c87b612",
       "name": "If statment"
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 3 },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
           "conditions": [
             {
               "id": "eb9845f5-7cfc-4c12-86ca-3de1ec200d83",
               "leftValue": "={{ $json.text }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -299,20 +501,32 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [320, -240],
+      "position": [
+        320,
+        -240
+      ],
       "id": "375de899-ee82-44b9-a79d-afd77f2c4896",
       "name": "If statment1"
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3 },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
           "conditions": [
             {
               "id": "0156ebce-bbac-4209-86e5-e4795be0006e",
               "leftValue": "={{ $input.all().length }}",
               "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -322,70 +536,217 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [544, 528],
+      "position": [
+        544,
+        528
+      ],
       "id": "ba92cfdc-ac21-4368-9cea-b51b4c7b6f63",
       "name": "If statment2"
     }
   ],
   "connections": {
     "On form submission": {
-      "main": [[{ "node": "Switch", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Switch": {
       "main": [
-        [{ "node": "PDF-file", "type": "main", "index": 0 }],
-        [{ "node": "TEXT-file", "type": "main", "index": 0 }],
-        [{ "node": "CSV-file", "type": "main", "index": 0 }],
-        [{ "node": "XLSX-file", "type": "main", "index": 0 }],
-        [{ "node": "Fel filtyp", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "PDF-file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TEXT-file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CSV-file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "XLSX-file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fel filtyp",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "textanalysis(PDF/TXT)": {
-      "main": [[{ "node": "Markdown", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Dataanalysis(CSV/XLSX)": {
-      "main": [[{ "node": "Markdown1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Markdown1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Merge": {
-      "main": [[{ "node": "Tomt dokument ", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Tomt dokument ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "PDF-file": {
-      "main": [[{ "node": "If statment1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "If statment1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "TEXT-file": {
-      "main": [[{ "node": "If statment ", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "If statment ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "CSV-file": {
-      "main": [[{ "node": "If statment", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "If statment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "XLSX-file": {
-      "main": [[{ "node": "If statment2", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "If statment2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Fel filtyp": {
-      "main": [[]]
+      "main": [
+        []
+      ]
     },
     "If statment ": {
       "main": [
-        [{ "node": "textanalysis(PDF/TXT)", "type": "main", "index": 0 }],
-        [{ "node": "Merge", "type": "main", "index": 1 }]
+        [
+          {
+            "node": "textanalysis(PDF/TXT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
       ]
     },
     "If statment": {
       "main": [
-        [{ "node": "Dataanalysis(CSV/XLSX)", "type": "main", "index": 0 }],
-        [{ "node": "Merge", "type": "main", "index": 2 }]
+        [
+          {
+            "node": "Dataanalysis(CSV/XLSX)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
       ]
     },
     "If statment1": {
       "main": [
-        [{ "node": "textanalysis(PDF/TXT)", "type": "main", "index": 0 }],
-        [{ "node": "Merge", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "textanalysis(PDF/TXT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "If statment2": {
       "main": [
-        [{ "node": "Dataanalysis(CSV/XLSX)", "type": "main", "index": 0 }],
-        [{ "node": "Merge", "type": "main", "index": 3 }]
+        [
+          {
+            "node": "Dataanalysis(CSV/XLSX)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
       ]
     }
   },

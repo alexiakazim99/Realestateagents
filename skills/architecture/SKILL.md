@@ -34,12 +34,16 @@ beskriver vad agenterna gör och hur de hänger ihop.
 | **Document Analysis Agent** | `Document summary Agent`, 17 noder | n8n-formulär med filuppladdning | Dokument laddas upp → routas på filtyp (PDF/TXT/CSV/XLSX) → text eller tabelldata extraheras → GPT sammanfattar, sätter risknivå 🟢🟡🔴 och listar varningar → HTML. Egna felgrenar för fel filtyp och tomt dokument. | `docs/document-analysis-agent.md` |
 
 **Att känna till:**
-- Document Analysis Agent heter `Document summary Agent` i n8n — namnen matchar
-  alltså inte. Den har också två kända, ej åtgärdade buggar (formulär utan fil
-  ger 500-fel, och MIME-matchningen är för strikt) och kör GPT-4 i sin
-  CSV/XLSX-gren medan resten av systemet kör GPT-4.1.
 - Lead Agent är den enda agenten som skriver till Google Sheet. De andra två
   returnerar bara sitt resultat i formuläret.
+- Alla agenter kör GPT-4.1.
+
+**Ändringslogg**
+- *2026-09-09* – Document Analysis Agent: workflowet döptes om från
+  `Document summary Agent` så namnet matchar agenten. Switch-noden läser nu
+  filtypen säkert (`dokument?.[0]?.mimetype`) så tom inmatning inte längre ger
+  500-fel, och matchar på filändelse som reserv när MIME-typen är generisk.
+  CSV/XLSX-grenen flyttades från GPT-4 till GPT-4.1.
 
 ### Kommande
 - **Scheduling Agent** – håller koll på mäklarens kalender, föreslår/bokar
