@@ -24,80 +24,22 @@ byggs sist, varefter subagenterna kopplas in under den.
 
 ### Klara
 
-#### Lead Agent
-Tar emot leads via webhook, kategoriserar efter temperatur och prioritet med
-GPT, slår upp rätt mäklare i Google Sheet och skickar notis. Fallback till
-admin om objektet inte hittas.
+Nod-för-nod-detaljerna för varje agent ligger i `docs/`, inte här. Denna fil
+beskriver vad agenterna gör och hur de hänger ihop.
 
-n8n-workflow: `Lead agent` (id `WDUPtrstUP9DT8cS`), 16 noder, aktivt.
-Innehåller **två oberoende kedjor** med var sin trigger.
+| Agent | n8n-workflow | Trigger | Flöde i korthet | Detaljer |
+|---|---|---|---|---|
+| **Lead Agent** | `Lead agent`, 16 noder | Webhook (Tally) + schema var 2:e min | Tar emot lead → GPT sätter temperatur/prioritet → slår upp mäklaren i Objekt-fliken → bekräftelse till spekulanten, notis till mäklaren (eller admin vid utebliven träff) → loggar raden i Leads-fliken. Den schemalagda kedjan fyller i formulärlänkar för nya objekt. | `docs/lead-agent.md` |
+| **Text Content Agent** | `Text Content Generator`, 3 noder | n8n-formulär | Mäklaren fyller i objektdata, ton, språk och plattform → GPT skriver annonstexten → konverteras till HTML. | `docs/text-content-agent.md` |
+| **Document Analysis Agent** | `Document summary Agent`, 17 noder | n8n-formulär med filuppladdning | Dokument laddas upp → routas på filtyp (PDF/TXT/CSV/XLSX) → text eller tabelldata extraheras → GPT sammanfattar, sätter risknivå 🟢🟡🔴 och listar varningar → HTML. Egna felgrenar för fel filtyp och tomt dokument. | `docs/document-analysis-agent.md` |
 
-**Kedja A – lead som kommer in (webhook)**
-
-| # | Nod | Typ | Gör |
-|---|---|---|---|
-| 1 | Webhook | webhook | `POST /webhook/lead-agent`, header-auth via `x-api-key` |
-| 2 | Extract lead fields | code | Plockar namn, epost, telefon, meddelande, objekt ur Tallys `fields[]` genom att matcha på fältets label |
-| 3 | Categorize lead | openAi (GPT-4.1) | Returnerar strikt JSON: temperatur, prioritet, motivering |
-| 4 | Format output | code | Tolkar AI-svaret, slår ihop med lead-fälten (inkl. råa meddelandet) |
-| 5 | Lookup broker in sheet | googleSheets (read) | Läser **alla** rader i Objekt-fliken. `alwaysOutputData: true` |
-| 6 | Merge broker lookup | code | Matchar objektet normaliserat (trim + gemener, även på kolumnnamn). Sätter `brokerFound` + maklare, maklarEmail, byra, annonslank |
-| 7a | Send confirmation to lead | gmail | Bekräftelse till spekulanten, signerad med matchad mäklare + byrå |
-| 7b | IF broker found | if | Grenar på `brokerFound` |
-| 7b→sant | Send email to broker | gmail | Full lead-data till mäklaren, inkl. spekulantens eget meddelande |
-| 7b→falskt | Send fallback email to admin | gmail | Samma innehåll till admin, flaggat som omatchat. Fungerar även som fellogg |
-| 7c | Build lead row | code | Formar raden till Leads-fliken. Nyckelordningen styr kolumnordningen |
-| 7d | Log lead to sheet | googleSheets (append) | Skriver raden till Leads-fliken. Körs för **varje** lead, matchat eller ej |
-
-Steg 7a, 7b och 7c körs parallellt från "Merge broker lookup".
-
-**Kedja B – automatisk formulärlänk (schema)**
-
-| # | Nod | Typ | Gör |
-|---|---|---|---|
-| 1 | Check for new objects | scheduleTrigger | Var 2:e minut |
-| 2 | Read objects sheet | googleSheets (read) | Läser alla rader i Objekt-fliken |
-| 3 | Build missing links | code | Hoppar över tomma rader och rader som redan har länk. Bygger `https://tally.so/r/<formId>?objekt=<objekt>` |
-| 4 | Write links to sheet | googleSheets (appendOrUpdate) | Upsert på `Objekt`, fyller i `Formulärlänk` |
-
-En Google Sheets **Trigger**-nod hade varit det naturliga valet men kräver en
-egen credential-typ (`googleSheetsTriggerOAuth2Api`). Schemat undviker det och
-fångar dessutom rader som lagts till medan n8n varit nere.
-
-#### Text Content Agent
-Genererar annonsbeskrivningar anpassade per plattform.
-
-n8n-workflow: `Text Content Generator` (id `CBzRhFUBOOljJqOS`), 3 noder, aktivt.
-
-| # | Nod | Typ | Gör |
-|---|---|---|---|
-| 1 | On form submission1 | formTrigger | n8n-formulär "Objektbeskrivning" — adress, bostadstyp, rum, boarea, pris, valuta, våning, avgift, byggår, detaljer, ton, språk, plattform, emoji |
-| 2 | Message a model | openAi (GPT-4.1) | Skriver texten enligt vald plattform (sociala medier / webb / prospekt / alla), ton och språk |
-| 3 | Markdown | markdown | Konverterar svaret till HTML |
-
-#### Document Analysis Agent
-Analyserar dokument och flaggar risknivåer.
-
-n8n-workflow: heter `Document summary Agent` i n8n (id `y4PQC8qh4QLQOhvM`),
-17 noder, aktivt. Namnet i n8n matchar alltså inte agentnamnet.
-
-| # | Nod | Typ | Gör |
-|---|---|---|---|
-| 1 | On form submission | formTrigger | Formulär "ladda upp dokument": nyckelord + filuppladdning |
-| 2 | Switch | switch | Routar på MIME-typ: PDF / TXT / CSV / XLSX, med fallback-utgång |
-| 3 | PDF-file / TEXT-file / CSV-file / XLSX-file | extractFromFile | Extraherar text respektive tabelldata |
-| 4 | If statment1 / If statment / If statment / If statment2 | if | Kollar att innehållet inte är tomt innan analys |
-| 5a | textanalysis(PDF/TXT) | openAi (GPT-4.1) | Sammanfattning, risknivå 🟢🟡🔴, varningar, nyckeldata, åtgärdsförslag |
-| 5b | Dataanalysis(CSV/XLSX) | openAi (**GPT-4**) | Motsvarande analys för tabelldata |
-| 6 | Markdown / Markdown1 | markdown | Konverterar analysen till HTML |
-| 7 | Merge → Tomt dokument | merge + set | Samlar de tomma fallen och sätter felmeddelande |
-| 8 | Fel filtyp | set | Felmeddelande för filtyp som inte stöds |
-
-Två kända buggar, ej åtgärdade: formulär utan fil ger ett ohanterat 500-fel
-(Switch läser `dokument[0].mimetype` utan att kolla att filen finns), och
-MIME-matchningen är exakt, så en giltig fil med avvikande MIME-typ hamnar i
-"Fel filtyp". CSV/XLSX-grenen kör dessutom GPT-4 medan resten av systemet
-kör GPT-4.1.
+**Att känna till:**
+- Document Analysis Agent heter `Document summary Agent` i n8n — namnen matchar
+  alltså inte. Den har också två kända, ej åtgärdade buggar (formulär utan fil
+  ger 500-fel, och MIME-matchningen är för strikt) och kör GPT-4 i sin
+  CSV/XLSX-gren medan resten av systemet kör GPT-4.1.
+- Lead Agent är den enda agenten som skriver till Google Sheet. De andra två
+  returnerar bara sitt resultat i formuläret.
 
 ### Kommande
 - **Scheduling Agent** – håller koll på mäklarens kalender, föreslår/bokar
