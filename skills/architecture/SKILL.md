@@ -48,7 +48,12 @@ beskriver vad agenterna gör och hur de hänger ihop.
 - *2026-09-10* – Error Logger byggd och inkopplad på alla tre agenterna. Nytt
   Google Sheet "Error Log" med flik "Errors". Agenternas egen felhantering
   (fallback-mejl, "Fel filtyp", "Tomt dokument") är orörd — detta är ett extra
-  lager för tekniska krascher.
+  lager för tekniska krascher. Verifierat genom att bryta varje agent i tur och
+  ordning; alla tre loggade korrekt.
+- *2026-09-10* – Google-credentials (Sheets och Gmail) gick ut efter 7 dagar och
+  kopplades om. Under tiden failade Lead Agents sheet-beroende steg tyst. Se
+  `skills/error-handling/SKILL.md` för vad det innebär och hur det löses
+  permanent.
 - *2026-09-09* – Document Analysis Agent: workflowet döptes om från
   `Document summary Agent` så namnet matchar agenten. Switch-noden läser nu
   filtypen säkert (`dokument?.[0]?.mimetype`) så tom inmatning inte längre ger

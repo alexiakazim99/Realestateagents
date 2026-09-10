@@ -57,3 +57,18 @@ Three issues found while documenting this agent were fixed and verified:
 - **MIME matching is no longer the only signal.** Each branch now matches on the MIME type **or** the file extension, with `typeValidation: loose` and case-insensitive comparison. Previously a genuine `.txt` file uploaded with a generic `application/octet-stream` type was rejected as "unsupported format". Verified: the same file that used to land in "Fel filtyp" now routes to the text analysis and returns a full report.
 
 Known remaining quirk: two `If` nodes are named "If statment" and "If statment " (distinguished only by a trailing space), and another pair "If statment1"/"If statment2". Functionally fine — n8n keys connections by node ID — but easy to misread on the canvas.
+
+## Error handling
+
+Two layers:
+
+- **In-flow handling**: the "Fel filtyp" branch for unsupported uploads, the
+  "Tomt dokument" branch for files that yield no readable content, and the safe
+  file access in Switch that stops a missing file from throwing. These give the
+  user a readable message.
+- **Crash logging**: the workflow's *Error Workflow* setting points at the shared
+  **Error Logger**, which writes a row to the Error Log spreadsheet when the
+  workflow throws. Verified 2026-09-10.
+
+Note that uploaded documents may contain personal data. The error log records
+only the node name and the error message — never document contents.

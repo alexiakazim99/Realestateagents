@@ -37,6 +37,25 @@ till samma ställe i samma format, så felen går att överblicka och åtgärda.
 - Errors-fliken är formaterad via Sheets API:ets `batchUpdate` (n8n-noden kan
   inte formatera): fryst och fetstilt rubrikrad, `wrapStrategy: WRAP` så långa
   felmeddelanden stannar i sin egen kolumn, och kolumnbredder 150 / 220 / 620 px.
+- Verifierat 2026-09-10: alla tre agenterna bröts kontrollerat i tur och ordning,
+  och varje fel landade i sheetet med rätt agentnamn och rätt nodnamn.
+
+## Kända svagheter i själva felhanteringen
+
+Detta är inte teoretiskt — båda inträffade under bygget.
+
+- **Fel i felhanteraren fångas av ingen.** Error Logger skriver via samma Google
+  Sheets-credential som agenterna använder. Slutar den fungera failar både
+  agenterna och loggningen av deras fel, samtidigt och tyst. Enda spåret blir
+  n8n:s exekveringslista.
+- **Google-credentials går ut var 7:e dag** så länge OAuth-appen står i
+  Testing-läge — Googles regel, inget n8n styr över. När det hände slutade
+  Lead Agents mäklaruppslag, lead-loggning och länkgenerator fungera samtidigt,
+  var 2:e minut, utan att någon märkte det. **Börja alltid felsökning med att
+  kontrollera credentials** om flera saker slutar fungera samtidigt.
+  Permanent lösning: service account för Sheets (går aldrig ut), och publicera
+  OAuth-appen till Production för Gmail.
+- **Ingen notifieras när ett fel loggas.** Loggen måste läsas manuellt.
 
 ## Skriv begripliga fel
 - Skriv *vad* som gick fel och *var* (vilken agent, vilket steg) — inte bara "Error".

@@ -126,3 +126,11 @@ The Leads tab's formatting was applied once by calling the Google Sheets API's `
 - Emails come from the owner's personal Gmail address. Fixing this properly needs an own domain plus a transactional email service (the Gmail node can't override the sender).
 - Reachability depends on the local n8n instance being up and the ngrok tunnel running; ngrok's free tier issues a new URL on every restart, which then has to be updated in Tally.
 - The Objekt tab is a single shared table. Once there is more than one agency, they would all see each other's rows — that needs either a sheet per agency or a real database.
+- Every sheet-dependent step (broker lookup, lead logging, link generation) shares one Google Sheets credential. While the OAuth app stays in Testing status Google stops refreshing that token after 7 days, and when it lapses all of them fail at once — quietly. This has already happened once. See `skills/error-handling/SKILL.md`.
+
+## Error handling
+
+Two layers, and they are not the same thing:
+
+- **In-flow handling** (unchanged): the try/catch around the model's JSON, `alwaysOutputData` on the lookup, the admin fallback email when no broker matches, and logging every lead regardless of match. These cover expected business conditions.
+- **Crash logging**: the workflow's *Error Workflow* setting points at the shared **Error Logger**, which writes a row to the Error Log spreadsheet when the workflow throws. This covers technical failures, not business conditions — an unmatched objekt is handled in-flow and correctly does *not* appear in the error log.

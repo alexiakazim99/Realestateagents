@@ -46,3 +46,22 @@ An n8n **Form Trigger** ("On form submission1") titled "Objektbeskrivning" — t
 
 - The system prompt is fact-grounding heavy: it explicitly forbids fabricating details not present in the submitted data, and forbids stating the price or judging the fee as high/low — these are hard behavioral constraints baked into the prompt, not something enforced by the workflow logic itself.
 - If "plattform" = "Alla", the model is instructed to produce all three variants (social/web/prospect) in one response, each under its own heading.
+
+## Error handling
+
+This agent has **no in-flow error handling** — three nodes, no error branch. If
+the OpenAI call fails, the execution simply errors out and the person who
+submitted the form gets nothing back.
+
+What it does have is crash logging: the workflow's *Error Workflow* setting
+points at the shared **Error Logger**, which writes a row to the Error Log
+spreadsheet. So the failure is visible to you, but the user is still left with
+an empty result and no explanation.
+
+Closing that gap needs two changes, both deliberately deferred:
+- Set the Form Trigger's `responseMode` to `lastNode` so the form actually shows
+  the workflow's output (today it shows a generic confirmation and the generated
+  text is only visible in n8n's execution view).
+- Give the model node an error output that returns a readable message.
+
+These wait on the dashboard decision — see the project notes.
