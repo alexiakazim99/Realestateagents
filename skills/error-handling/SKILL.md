@@ -34,6 +34,9 @@ till samma ställe i samma format, så felen går att överblicka och åtgärda.
 - **Error Logger måste vara aktivt** — annars fångas ingenting, tyst.
 - Anslutna agenter: Lead Agent, Text Content Agent, Document Analysis Agent.
   Kopplar du in en ny agent, sätt samma inställning på den.
+- Errors-fliken är formaterad via Sheets API:ets `batchUpdate` (n8n-noden kan
+  inte formatera): fryst och fetstilt rubrikrad, `wrapStrategy: WRAP` så långa
+  felmeddelanden stannar i sin egen kolumn, och kolumnbredder 150 / 220 / 620 px.
 
 ## Skriv begripliga fel
 - Skriv *vad* som gick fel och *var* (vilken agent, vilket steg) — inte bara "Error".
