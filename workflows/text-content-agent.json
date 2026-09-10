@@ -8,48 +8,96 @@
         "formDescription": "Fyll i objektets uppgifter så genereras en färdig beskrivning.",
         "formFields": {
           "values": [
-            { "fieldLabel": "adress", "requiredField": true },
+            {
+              "fieldLabel": "adress",
+              "requiredField": true
+            },
             {
               "fieldLabel": "bostadstyp",
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "lägenhet " },
-                  { "option": "villa" },
-                  { "option": "fritidshus" },
-                  { "option": "Radhus" }
+                  {
+                    "option": "lägenhet "
+                  },
+                  {
+                    "option": "villa"
+                  },
+                  {
+                    "option": "fritidshus"
+                  },
+                  {
+                    "option": "Radhus"
+                  }
                 ]
               },
               "requiredField": true
             },
-            { "fieldLabel": "rum", "fieldType": "number", "requiredField": true },
-            { "fieldLabel": "boarea", "fieldType": "number", "requiredField": true },
-            { "fieldLabel": "pris", "fieldType": "number", "requiredField": true },
+            {
+              "fieldLabel": "rum",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "boarea",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "pris",
+              "fieldType": "number",
+              "requiredField": true
+            },
             {
               "fieldLabel": "valuta",
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "SEK" },
-                  { "option": "EUR" },
-                  { "option": "USD" }
+                  {
+                    "option": "SEK"
+                  },
+                  {
+                    "option": "EUR"
+                  },
+                  {
+                    "option": "USD"
+                  }
                 ]
               },
               "requiredField": true
             },
-            { "fieldLabel": "vaning" },
-            { "fieldLabel": "avgift", "fieldType": "number" },
-            { "fieldLabel": "byggar", "fieldType": "number" },
-            { "fieldLabel": "detaljer", "fieldType": "textarea" },
+            {
+              "fieldLabel": "vaning"
+            },
+            {
+              "fieldLabel": "avgift",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "byggar",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "detaljer",
+              "fieldType": "textarea"
+            },
             {
               "fieldLabel": "ton",
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "Modern" },
-                  { "option": "Klassisk" },
-                  { "option": "Lyxig" },
-                  { "option": "Saklig" }
+                  {
+                    "option": "Modern"
+                  },
+                  {
+                    "option": "Klassisk"
+                  },
+                  {
+                    "option": "Lyxig"
+                  },
+                  {
+                    "option": "Saklig"
+                  }
                 ]
               },
               "requiredField": true
@@ -59,9 +107,15 @@
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "Svenska" },
-                  { "option": "Engelska" },
-                  { "option": "Spanska" }
+                  {
+                    "option": "Svenska"
+                  },
+                  {
+                    "option": "Engelska"
+                  },
+                  {
+                    "option": "Spanska"
+                  }
                 ]
               },
               "requiredField": true
@@ -71,10 +125,18 @@
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "sociala medier" },
-                  { "option": "webb" },
-                  { "option": "prospekt" },
-                  { "option": "Alla" }
+                  {
+                    "option": "sociala medier"
+                  },
+                  {
+                    "option": "webb"
+                  },
+                  {
+                    "option": "prospekt"
+                  },
+                  {
+                    "option": "Alla"
+                  }
                 ]
               },
               "requiredField": true
@@ -84,8 +146,12 @@
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "ja" },
-                  { "option": "nej" }
+                  {
+                    "option": "ja"
+                  },
+                  {
+                    "option": "nej"
+                  }
                 ]
               }
             }
@@ -95,7 +161,10 @@
       },
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.6,
-      "position": [16, 64],
+      "position": [
+        16,
+        64
+      ],
       "id": "c80dcba3-5b33-4c0a-8568-62cda4c60f91",
       "name": "On form submission1",
       "webhookId": "5029572d-a0a2-4ec8-b352-d5741930949c"
@@ -124,7 +193,10 @@
       },
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.3,
-      "position": [240, 64],
+      "position": [
+        240,
+        64
+      ],
       "id": "4344c69b-6221-4ad2-927d-2b734d625ac0",
       "name": "Message a model",
       "credentials": {
@@ -142,23 +214,43 @@
       },
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
-      "position": [608, 64],
+      "position": [
+        608,
+        64
+      ],
       "id": "97121f42-f6ba-4429-9f27-16711f20ee1c",
       "name": "Markdown"
     }
   ],
   "connections": {
     "On form submission1": {
-      "main": [[{ "node": "Message a model", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Message a model": {
-      "main": [[{ "node": "Markdown", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "errorWorkflow": "qSlGV404Nr8ZNogi"
   },
   "pinData": {}
 }

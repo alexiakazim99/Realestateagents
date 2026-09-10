@@ -1,0 +1,59 @@
+{
+  "name": "Error Logger",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "err-trigger-0001",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Bygger en rad till Error Log-sheetet.\n// VIKTIGT: logga aldrig hemligheter eller känslig data.\n// Endast nodnamn + felmeddelande — ingen stack, ingen input-data,\n// inget dokumentinnehåll och inga lead-uppgifter.\n\nconst d = $input.first()?.json || {};\nconst ex = d.execution || {};\nconst wf = d.workflow || {};\nconst err = ex.error || {};\n\nconst pad = (n) => String(n).padStart(2, '0');\nconst now = new Date();\nconst tidpunkt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;\n\nconst agent = wf.name || 'Okänt workflow';\n\n// Vilket steg som failade\nconst nod = err.node?.name || ex.lastNodeExecuted || 'okänd nod';\n\n// Felmeddelandet, normaliserat och kapat så inte stora datadumpar hamnar i loggen\nlet meddelande = (err.message || 'Okänt fel').toString().replace(/\\s+/g, ' ').trim();\nif (meddelande.length > 300) meddelande = meddelande.slice(0, 300) + '…';\n\nreturn [{\n  json: {\n    'Tidpunkt': tidpunkt,\n    'Agent': agent,\n    'Vad som gick fel': `${nod}: ${meddelande}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "err-build-0002",
+      "name": "Build error row"
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dHAAyZzim-WMIGREClvIyoCXrbLa9Adx1yoOQzPpmZ0"
+        },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Errors" },
+        "columns": { "mappingMode": "autoMapInputData", "value": {}, "schema": [] },
+        "options": { "handlingExtraData": "insertInNewColumn", "cellFormat": "RAW" }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [440, 0],
+      "id": "err-write-0003",
+      "name": "Append to Error Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "hBzYYWrAg76ck0Ue", "name": "Google Sheets account" }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [[{ "node": "Build error row", "type": "main", "index": 0 }]]
+    },
+    "Build error row": {
+      "main": [[{ "node": "Append to Error Log", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

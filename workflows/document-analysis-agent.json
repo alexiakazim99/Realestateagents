@@ -753,7 +753,8 @@
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "errorWorkflow": "qSlGV404Nr8ZNogi"
   },
   "pinData": {}
 }

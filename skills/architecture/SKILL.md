@@ -38,7 +38,17 @@ beskriver vad agenterna gör och hur de hänger ihop.
   returnerar bara sitt resultat i formuläret.
 - Alla agenter kör GPT-4.1.
 
+### Stödworkflow
+- **Error Logger** – delat workflow som fångar tekniska krascher från alla
+  agenter via Error Trigger och skriver en rad till Errors-fliken i det separata
+  Google Sheet-dokumentet "Error Log". Agenterna pekar på det via sin
+  *Error Workflow*-inställning. Se `skills/error-handling/SKILL.md`.
+
 **Ändringslogg**
+- *2026-09-10* – Error Logger byggd och inkopplad på alla tre agenterna. Nytt
+  Google Sheet "Error Log" med flik "Errors". Agenternas egen felhantering
+  (fallback-mejl, "Fel filtyp", "Tomt dokument") är orörd — detta är ett extra
+  lager för tekniska krascher.
 - *2026-09-09* – Document Analysis Agent: workflowet döptes om från
   `Document summary Agent` så namnet matchar agenten. Switch-noden läser nu
   filtypen säkert (`dokument?.[0]?.mimetype`) så tom inmatning inte längre ger
