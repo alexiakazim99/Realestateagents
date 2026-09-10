@@ -23,8 +23,10 @@ inte en flödesbeskrivning.
 - **Varje plattformsval.** "Sociala medier", "Webb" och "Prospekt" ger olika
   format och längd, och "Alla" ska ge alla tre under egna rubriker. Testar du
   bara ett val ser du inte om de andra gått sönder.
-- **Ett objekt med luckor.** Lämna avgift, våning och detaljer tomma. Tomma fält
-  ska hoppas över helt, inte skrivas ut som tomma rader eller hittas på.
+- **Ett objekt med luckor.** De valfria fälten är `vaning`, `avgift`, `byggar`,
+  `detaljer` och `emoji` — allt annat är obligatoriskt i formuläret. Lämna de
+  valfria tomma och kontrollera att de hoppas över helt, inte skrivs ut som
+  tomma rader eller hittas på.
 - **Språkvalet.** Prompten ska följa fältet, inte formulärets språk.
 
 ## Rör inte utan att testa outputen
